@@ -11,7 +11,9 @@ repositories {
 }
 
 configurations {
-
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
 }
 
 dependencies {
@@ -31,11 +33,60 @@ dependencies {
     // Allure
     testImplementation 'io.qameta.allure:allure-cucumber7-jvm:2.24.0'
     testImplementation 'io.qameta.allure:allure-testng:2.24.0'
+
+    // Logging
+    testImplementation 'org.slf4j:slf4j-simple:2.0.9'
+
+    // Slack SDK
+    testImplementation 'com.slack.api:slack-api-client:1.36.0'
 }
 
 test {
-    useTestNG {
-        'src/test/resources/testng.xml'
-    }
+    useTestNG()
     systemProperties = System.properties as Map<String, ?>
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
+
+tasks.register('cucumberTest', Test) {
+    useTestNG()
+    systemProperties = System.properties as Map<String, ?>
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+    outputs.upToDateWhen { false }
+}
+
+allure {
+    version = '2.24.0'
+    aspectjweaver = true
+}
+
+tasks.register('cucumber') {
+    dependsOn testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.test.output + sourceSets.main.output
+            args = [
+                    '--plugin', 'pretty',
+                    '--plugin', 'io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm',
+                    '--plugin', 'json:build/cucumber-reports/cucumber.json',
+                    '--plugin', 'html:build/cucumber-reports/cucumber.html',
+                    '--glue', 'com.saucedemo.steps',
+                    'src/test/resources/features'
+            ]
+        }
+    }
+}
+
+tasks.register('runTests') {
+    dependsOn clean, test
+
+    doLast {
+        println "Tests completed. Run './gradlew allureReport' to generate the report."
+    }
 }
