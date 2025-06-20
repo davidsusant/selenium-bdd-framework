@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.saucedemo'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+
+}
+
+dependencies {
+
+}
