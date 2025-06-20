@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'io.qameta.allure' version '2.11.2'
 }
 
 group = 'com.saucedemo'
@@ -14,5 +15,27 @@ configurations {
 }
 
 dependencies {
+    // Selenium
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.15.0'
 
+    // WebDriverManager
+    testImplementation 'io.github.bonigarcia:webdrivermanager:5.5.3'
+
+    // Cucumber
+    testImplementation 'io.cucumber:cucumber-java:7.14.0'
+    testImplementation 'io.cucumber:cucumber-testng:7.14.0'
+
+    // TestNG
+    testImplementation 'org.testng:testng:7.8.0'
+
+    // Allure
+    testImplementation 'io.qameta.allure:allure-cucumber7-jvm:2.24.0'
+    testImplementation 'io.qameta.allure:allure-testng:2.24.0'
+}
+
+test {
+    useTestNG {
+        'src/test/resources/testng.xml'
+    }
+    systemProperties = System.properties as Map<String, ?>
 }
